@@ -22,7 +22,3 @@
 			margin-right:15px;
 		}
 </style>
-<div class="header">
-	<span class="left">권한 관리</span>
-	<span class="right"><span class="glyphicon glyphicon-home"></span>&nbsp;시스템 관리 > 권한 관리</span>
-</div>
