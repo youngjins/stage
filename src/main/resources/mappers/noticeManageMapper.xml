@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="noticeManageMapper">
+	<!-- 공지사항 등록 -->
+	<insert id="insert" parameterType="hashMap">
+	    INSERT INTO NOTICE_MANAGE(   NOTICE_NO 
+		   					       , NOTICE_TITLE
+		   					       , NOTICE_WRITER 
+		   					       , NOTICE_REGDATE
+		   					       , NOTICE_CONTENT
+		   					       , MENU_CODE )
+	   					       
+		                  VALUES(    NOTICE_MANAGE_SEQ.NEXTVAL
+		                 		   , #{NOTICE_TITLE}
+		                 		   , #{NOTICE_WRITER}
+		                 		   , SYSDATE
+		                 		   , #{NOTICE_CONTENT}
+		                 		   , #{MENU_CODE} )
+   
+    </insert>
+   
+   <!-- 공지사항 목록 -->
+    <select id="list" parameterType="kr.co.vo.SearchCriteria" resultType="hashMap">
+		SELECT  AB.NOTICE_NO
+			  , AB.NOTICE_TITLE
+			  , AB.NOTICE_CONTENT
+			  , AB.NOTICE_WRITER
+			  , AB.NOTICE_REGDATE
+			  , AB.NOTICE_MODIFYDATE
+			  , AB.NOTICE_MDWRITER
+			  , AB.MENU_CODE
+              , AB.UPPER_MENU_CODE
+              , AB.MENU_NAME
+		 FROM ( 
+		        SELECT  A.NOTICE_NO
+					  , A.NOTICE_TITLE
+					  , A.NOTICE_CONTENT
+					  , A.NOTICE_WRITER
+					  , A.NOTICE_REGDATE
+					  , A.NOTICE_MODIFYDATE
+					  , A.NOTICE_MDWRITER
+					  , A.MENU_CODE
+					  , B.UPPER_MENU_CODE
+					  , B.MENU_NAME
+		              , ROW_NUMBER() OVER(ORDER BY A.NOTICE_NO DESC) AS RNUM
+		         FROM NOTICE_MANAGE A, MENU_MANAGE B
+		         WHERE 1=1  
+                 AND A.MENU_CODE = B.MENU_CODE
+                 <include refid="search"></include>
+               ) AB
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY AB.NOTICE_NO DESC 
+    </select>
+    
+    	<select id="listCount" parameterType="kr.co.vo.SearchCriteria" resultType="int">
+		SELECT COUNT(A.NOTICE_NO)
+		   FROM NOTICE_MANAGE A, MENU_MANAGE B
+		   WHERE 1=1
+		     AND A.MENU_CODE = B.MENU_CODE
+		<include refid="search"></include>	
+		   AND A.NOTICE_NO > 0
+	</select>
+    
+    <select id="menuList" resultType="hashMap">
+    	SELECT MENU_NAME, MENU_CODE, UPPER_MENU_CODE FROM MENU_MANAGE
+    </select>
+   
+    <update id="update" parameterType="hashMap">
+   		UPDATE NOTICE_MANAGE SET
+			  NOTICE_TITLE = #{NOTICE_TITLE} 
+			, MENU_CODE = #{MENU_CODE}  
+			, NOTICE_MDWRITER = #{NOTICE_MDWRITER}
+			, NOTICE_MODIFYDATE = SYSDATE
+		WHERE NOTICE_NO = #{NOTICE_NO}
+    </update>
+   
+     <delete id="delete" parameterType="hashMap">
+    	DELETE FROM NOTICE_MANAGE WHERE NOTICE_NO = #{NOTICE_NO}
+    </delete>
+    
+    <select id="selectList" parameterType="int" resultType="hashMap">
+    	SELECT ROW_NUMBER() OVER(ORDER BY NOTICE_NO ASC) AS RNUM,
+               NOTICE_NO,
+               NOTICE_TITLE, 
+               NOTICE_CONTENT, 
+               NOTICE_WRITER, 
+               NOTICE_REGDATE 
+    	FROM NOTICE_MANAGE
+    	WHERE MENU_CODE=#{menuCode}
+        ORDER BY RNUM DESC
+    </select>
+    
+    
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND A.NOTICE_TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND A.NOTICE_WRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'u'.toString()">AND A.NOTICE_MDWRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND A.MENU_CODE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'm'.toString()">AND B.MENU_NAME LIKE '%' || #{keyword} || '%'</if>
+		</if>
+	</sql>
+</mapper>

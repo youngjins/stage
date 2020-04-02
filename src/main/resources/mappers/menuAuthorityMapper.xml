@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menuAuthorityMapper">
+	<select id="groupNameList" resultType="hashMap">
+		SELECT GROUP_NAME, GROUP_NO FROM AUTHORITY_MANAGE
+	</select>
+
+	<select id="menuAuthorityList" parameterType="hashMap" resultType="hashMap">
+		SELECT A.MENU_CODE, A.MENU_NAME, A.UPPER_MENU_CODE, B.GROUP_NO
+        FROM MENU_MANAGE A, (SELECT   MENU_CODE
+        							, MENU_NAME
+        							, GROUP_NO 
+        					   FROM MENU_AUTHORITY_MANAGE 
+        					  WHERE GROUP_NO=#{GROUP_NO}) B
+        WHERE A.MENU_CODE = B.MENU_CODE(+)
+        START WITH A.UPPER_MENU_CODE IS NULL
+        CONNECT BY PRIOR A.MENU_CODE = A.UPPER_MENU_CODE
+        ORDER SIBLINGS BY A.MENU_CODE ASC
+	</select>
+
+	<!-- 권한 추가 -->
+	<insert id="menuAuthorityAdd" parameterType="hashMap">
+		INSERT INTO MENU_AUTHORITY_MANAGE
+			(
+				GROUP_NO
+			  , MENU_CODE
+			  , MENU_NAME
+			)VALUES(
+			    #{GROUP_NO}
+			  ,	#{MENU_CODE}
+			  , #{MENU_NAME}
+			)
+	
+	</insert>
+	
+	<delete id="menuAuthorityDel">
+		DELETE FROM MENU_AUTHORITY_MANAGE
+		WHERE GROUP_NO = #{GROUP_NO}
+		  AND MENU_CODE = #{MENU_CODE}
+	</delete>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="AuthorityMapper">
+	<insert id="insert" parameterType="kr.co.vo.AuthorityVO">
+	    INSERT INTO AUTHORITY_MANAGE(    GROUP_NO 
+			   					       , GROUP_NAME
+			   					       , GROUP_EXPLAIN 
+			   					       , FIRST_SCREEN
+			   					       , FIRST_SCREEN_CODE
+			   					       , AUTH_WRITER
+			   					       , AUTH_REGDATE
+			   					    )
+			   					       
+			                  VALUES(    AUTHORITY_MANAGE_SEQ.NEXTVAL
+			                 		   , #{GROUP_NAME}
+			                 		   , #{GROUP_EXPLAIN}
+			                 		   , #{FIRST_SCREEN}
+			                 		   , #{FIRST_SCREEN_CODE}
+			                 		   , #{AUTH_WRITER}
+			                 		   , SYSDATE
+			                 		 )
+   
+    </insert>
+    
+    <update id="update" parameterType="kr.co.vo.AuthorityVO">
+    	UPDATE AUTHORITY_MANAGE SET
+    								GROUP_NAME = #{GROUP_NAME}
+    							  , GROUP_EXPLAIN = #{GROUP_EXPLAIN}
+    							  , FIRST_SCREEN = #{FIRST_SCREEN}
+    							  , FIRST_SCREEN_CODE = #{FIRST_SCREEN_CODE}
+    							  , AUTH_MFWRITER = #{AUTH_MFWRITER}
+    							  , AUTH_MODIFYDATE = SYSDATE
+    						WHERE GROUP_NO = #{GROUP_NO}
+    </update>
+    
+    <select id="list" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM AUTHORITY_MANAGE
+    </select>
+    
+    <select id="listPage" parameterType="kr.co.vo.SearchCriteria" resultType="hashMap">
+		SELECT GROUP_NO
+			 , GROUP_EXPLAIN
+			 , GROUP_NAME
+		     , FIRST_SCREEN
+		     , AUTH_WRITER
+		     , AUTH_REGDATE
+		     , AUTH_MFWRITER
+		     , AUTH_MODIFYDATE
+		FROM (SELECT GROUP_NO
+				   , GROUP_EXPLAIN
+		           , GROUP_NAME
+		           , FIRST_SCREEN
+		           , AUTH_WRITER
+		           , AUTH_REGDATE
+		           , AUTH_MFWRITER
+		           , AUTH_MODIFYDATE
+		           , ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC) AS RNUM
+		        FROM authority_manage
+		        WHERE 1=1
+		        	  <include refid="search"></include>
+		        	  )
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY GROUP_NO DESC
+    </select>
+    
+    <select id="listCount" parameterType="kr.co.vo.SearchCriteria" resultType="int">
+    	SELECT COUNT(GROUP_NO)
+    	  FROM AUTHORITY_MANAGE
+    	 WHERE 1=1
+    	 <include refid="search"></include>
+    	 AND GROUP_NO > 0
+    </select>
+    
+    <sql id="search">
+    	<if test="searchType != null">
+    		<if test="searchType == 'gName'.toString()">AND GROUP_NAME LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'fScreen'.toString()">AND FIRST_SCREEN LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'writer'.toString()">AND AUTH_WRITER LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'mfWriter'.toString()">AND AUTH_MFWRITER LIKE '%' || #{keyword} || '%'</if>
+    	</if>
+    </sql>
+    
+    <select id="menuList" parameterType="hashMap" resultType="hashMap">
+    	SELECT * FROM MENU_MANAGE WHERE UPPER_MENU_CODE IS NOT NULL
+    </select>
+</mapper>

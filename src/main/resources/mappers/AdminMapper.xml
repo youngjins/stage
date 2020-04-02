@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="AdminMapper">
+	<insert id="insert" parameterType="kr.co.vo.AdminVO">
+	    INSERT INTO ADMIN_MANAGE(    ADMIN_ID 
+			   					   , ADMIN_NAME
+			   					   , ADMIN_PWD 
+			   					   , ADMIN_EMAIL
+			   					   , ADMIN_PHONE
+			   					   , EMERGENCY_CONTACT
+			   					   , USE_YN
+			   					   , GROUP_NAME
+			   					   , GROUP_NO
+			   					   , ADMIN_WRITER
+			   					   , ADMIN_REGDATE
+			   				    )
+			   					       
+			              VALUES(    #{ADMIN_ID}
+			              		   , #{ADMIN_NAME}
+			              		   , #{ADMIN_PWD}
+			              		   , #{ADMIN_EMAIL}
+			              		   , #{ADMIN_PHONE}
+			              		   , #{EMERGENCY_CONTACT}
+			              		   , #{USE_YN}
+			              		   , #{GROUP_NAME}
+			               		   , #{GROUP_NO}
+			               		   , #{ADMIN_WRITER}
+			               		   , SYSDATE
+			               		 )
+   
+    </insert>
+    
+    <update id="update" parameterType="kr.co.vo.AdminVO">
+    	UPDATE ADMIN_MANAGE SET
+   								ADMIN_ID = #{ADMIN_ID}
+   							  , ADMIN_NAME = #{ADMIN_NAME}
+   							  , ADMIN_PWD = #{ADMIN_PWD}
+   							  , ADMIN_EMAIL = #{ADMIN_EMAIL}
+   							  , ADMIN_PHONE = #{ADMIN_PHONE}
+   							  , EMERGENCY_CONTACT = #{EMERGENCY_CONTACT}
+   							  , USE_YN = #{USE_YN}
+   							  , GROUP_NAME = #{GROUP_NAME}
+   							  , GROUP_NO = #{GROUP_NO}
+   							  , ADMIN_MFWRITER = #{ADMIN_MFWRITER}
+   							  , ADMIN_MODIFYDATE = #{ADMIN_MODIFYDATE}
+   							  , AUTH_MODIFYDATE = SYSDATE
+   						WHERE ADMIN_ID = #{ADMIN_ID}
+    </update>
+
+	<select id="list" parameterType="hashMap" resultType="hashMap">
+		SELECT * FROM ADMIN_MANAGE;
+	</select>
+	
+	<select id="adminListPage" parameterType="kr.co.vo.SearchCriteria" resultType="hashMap">
+		SELECT ADMIN_ID
+		     , ADMIN_NAME
+		     , ADMIN_PWD
+		     , ADMIN_EMAIL
+		     , ADMIN_PHONE
+		     , USE_YN
+		     , GROUP_NAME
+		     , ADMIN_WRITER
+		     , ADMIN_REGDATE
+		     , ADMIN_MFWRITER
+		     , ADMIN_MODIFYDATE
+		     , EMERGENCY_CONTACT
+		     , GROUP_NO
+		FROM  (SELECT ADMIN_ID
+		            , ADMIN_NAME
+		            , ADMIN_PWD
+		            , ADMIN_EMAIL
+		            , ADMIN_PHONE
+		            , USE_YN
+		            , GROUP_NAME
+		            , ADMIN_WRITER
+		            , ADMIN_REGDATE
+		            , ADMIN_MFWRITER
+		            , ADMIN_MODIFYDATE
+		            , EMERGENCY_CONTACT
+		            , GROUP_NO
+		            , ROW_NUMBER() OVER(ORDER BY GROUP_NO DESC) AS RNUM FROM ADMIN_MANAGE
+		       WHERE 1=1
+		       		 <include refid="search"></include>
+		       )
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY GROUP_NO DESC
+	</select>
+	
+	<select id="listCount" parameterType="kr.co.vo.SearchCriteria" resultType="int">
+    	SELECT COUNT(ADMIN_ID)
+    	  FROM ADMIN_MANAGE
+    	 WHERE 1=1
+    	 <include refid="search"></include>
+    	 AND ADMIN_ID IS NOT NULL
+    </select>
+	
+	<sql id="search">
+    	<if test="searchType != null">
+    		<if test="searchType == 'uID'.toString()">AND ADMIN_ID LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'uName'.toString()">AND ADMIN_NAME LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'gName'.toString()">AND GROUP_NAME LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'writer'.toString()">AND ADMIN_WRITER LIKE '%' || #{keyword} || '%'</if>
+    		<if test="searchType == 'mfWriter'.toString()">AND ADMIN_MFWRITER LIKE '%' || #{keyword} || '%'</if>
+    	</if>
+    </sql>
+    
+    <select id="AuthorityList" parameterType="hashMap" resultType="hashMap">
+    	SELECT GROUP_NO, GROUP_NAME FROM Authority_MANAGE
+    </select>
+
+</mapper>

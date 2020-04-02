@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="MenuMapper">
+	<select id="list" parameterType="hashMap" resultType="hashMap">
+		 SELECT *
+		   FROM MENU_MANAGE
+		  WHERE 1=1
+		  START with UPPER_MENU_CODE IS NULL
+		  CONNECT BY PRIOR MENU_CODE = UPPER_MENU_CODE
+		  ORDER SIBLINGS BY MENU_CODE ASC
+	</select>
+	
+	<select id="upList" parameterType="hashMap" resultType="hashMap">
+		SELECT UPPER_MENU_CODE
+		     , MENU_NAME
+		     , MENU_CODE
+		  FROM MENU_MANAGE
+		 WHERE UPPER_MENU_CODE IS NULL
+		 ORDER BY MENU_CODE ASC
+	</select>
+	
+	<insert id="insert" parameterType="kr.co.vo.MenuVO">
+		INSERT INTO MENU_MANAGE
+			 ( MENU_CODE
+			  ,UPPER_MENU_CODE
+			  ,MENU_NAME
+			  ,MENU_EXPLAIN
+			  ,USE_YN
+			 )
+		VALUES
+			 ( #{MENU_CODE}
+			  ,#{UPPER_MENU_CODE}
+			  ,#{MENU_NAME}
+			  ,#{MENU_EXPLAIN}
+			  ,#{USE_YN}
+			 ) 
+	</insert>
+	
+	<update id="update" parameterType="kr.co.vo.MenuVO">
+		UPDATE MENU_MANAGE
+		   SET UPPER_MENU_CODE = #{UPPER_MENU_CODE}
+		      ,MENU_CODE = #{MENU_CODE}
+		      ,MENU_NAME = #{MENU_NAME}
+		      ,MENU_EXPLAIN = #{MENU_EXPLAIN}
+		      ,USE_YN = #{USE_YN}
+		 WHERE MENU_CODE = #{MENU_CODE}
+	</update>
+	
+	<delete id="delete" parameterType="kr.co.vo.MenuVO">
+		 DELETE FROM MENU_MANAGE
+		  WHERE MENU_CODE = #{MENU_CODE}
+	</delete>
+
+</mapper>
