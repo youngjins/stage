@@ -103,7 +103,6 @@
 			/* 권한있는 메뉴 전체선택START */
 			$("#menuAll_Y").on("change", function(){
 				$("tr[id^='b'] input[type='checkbox']").prop("checked", $(this).prop("checked"));
-				
 			})
 			/* 권한있는 메뉴 전체선택END */
 			

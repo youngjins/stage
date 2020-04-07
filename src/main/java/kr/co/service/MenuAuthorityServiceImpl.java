@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.co.dao.MenuAuthorityDAO;
 
 @Service
@@ -29,6 +32,7 @@ public class MenuAuthorityServiceImpl implements MenuAuthorityService {
 	}
 	
 	// 사용자 권한 추가 삭제
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	@Override
 	public void authorityAdd(Map<String, Object> map, String[] insertMenuCode, String[] deleteMenuCode) throws Exception {
 		//권한 추가
