@@ -63,5 +63,8 @@
 			<p style="color: red;">로그인 실패! 아이디와 비밀번호를 확인해주세요.</p>
 		</c:if>
 	</form>
+	<c:if test="${member != null }">
+		<iframe id="a" src="/chat" width="500px" height="500px"></iframe>
+	</c:if>
 </body>
 </html>

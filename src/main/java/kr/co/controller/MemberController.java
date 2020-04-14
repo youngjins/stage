@@ -1,5 +1,8 @@
 package kr.co.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -63,7 +66,10 @@ public class MemberController {
 		if(login != null) {
 			boolean pwdMatch = pwdEncoder.matches(vo.getUserPass(), login.getUserPass());
 			if(pwdMatch == true) {
-				session.setAttribute("member", login);
+				Map<String, Object> map = new HashMap<>();
+				map.put("userId", login.getUserId());
+				map.put("userName", login.getUserName());
+				session.setAttribute("member", map);
 			} else {
 				session.setAttribute("member", null);
 				rttr.addFlashAttribute("msg", false);
@@ -71,6 +77,7 @@ public class MemberController {
 		}else {
 			rttr.addFlashAttribute("msg", false);
 		}
+		logger.info("session :::: {} ", session.getId());
 		return "redirect:/";
 	}
 	
