@@ -69,7 +69,16 @@ public class MemberController {
 				Map<String, Object> map = new HashMap<>();
 				map.put("userId", login.getUserId());
 				map.put("userName", login.getUserName());
+				
+				if(LoginManage.getInstance().isUsing(login.getUserId())) {
+					System.out.println("이미 아이디가 접속중 입니다.");
+					
+					//중복로그인방지 2020-04-17 다시해볼것
+					LoginManage.getInstance().removeSession(login.getUserId());
+				}
+				
 				session.setAttribute("member", map);
+				LoginManage.getInstance().setSession(session, login.getUserId());
 			} else {
 				session.setAttribute("member", null);
 				rttr.addFlashAttribute("msg", false);

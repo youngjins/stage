@@ -1,5 +1,6 @@
 package kr.co.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,11 @@ public class EchoHandler extends TextWebSocketHandler {
 		Map<String, Object> map = session.getAttributes();
 		sessionList.add(session);
 		logger.info("접속 : {}", session.getId());
-		logger.info("map : {}", map);
 		
-		for(WebSocketSession sess : sessionList){
+		/*for(WebSocketSession sess : sessionList){
 			sess.sendMessage(new TextMessage(((Map)map.get("member")).get("userId") +"님입장"));
-		}
+		}*/
+		broadCast(((Map)map.get("member")).get("userId")+"님이 입장하셨습니다.");
 	}
 	
 	
@@ -40,21 +41,33 @@ public class EchoHandler extends TextWebSocketHandler {
 		
 		Map<String, Object> map = session.getAttributes();
 		
-		logger.info("sesionId : "+ map.get("HTTP.SESSION.ID"));
 		logger.info("{}로 부터 {} 받음", session.getId(), message.getPayload());
-		
-        for(WebSocketSession sess : sessionList){
-        	logger.info("dddddddd : {}"+sess);
-        	logger.info("dddddddd2 : {}"+session);
+		broadCast(((Map)map.get("member")).get("userId") +" : "+ message.getPayload());
+       /* for(WebSocketSession sess : sessionList){
             sess.sendMessage(new TextMessage(((Map)map.get("member")).get("userId") +" : "+ message.getPayload()));
-        }
+        }*/
 	}
 	
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+		/*Map<String, Object> map = session.getAttributes();
+		session.sendMessage(new TextMessage(((Map)map.get("member")).get("userId") +"님 퇴장"));*/
+		Map<String, Object> map = session.getAttributes();
 		sessionList.remove(session);
 		logger.info("퇴장 : {}", session.getId());
+		broadCast(((Map)map.get("member")).get("userId")+"님이 퇴장하셨습니다.");
+	}
+	
+	private void broadCast(String message) throws Exception {
+		
+		for(WebSocketSession sess : sessionList) {
+			
+			if(sess.isOpen()) {
+				sess.sendMessage(new TextMessage(message));
+			}
+		}
+		
 	}
 	
 	

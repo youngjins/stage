@@ -100,6 +100,136 @@
 			vertical-align:middle;
 		}
 	</style>
+	
+	<script>
+		$(document).ready(function(){
+			
+			var key = getCookie("key");
+			$("input[id=adminId]").val(key);
+			
+			if($("input[id=adminId]").val() != ""){
+				$("#idSave").attr("checked", true);
+			}
+			
+			$("#idSave").change(function(){
+				if($("#idSave").is(":checked")){
+					setCookie("key", $("input[id=adminId]").val(), 7);
+				}
+				else{
+					deleteCookie("key");
+				}
+			});
+			
+			$("input[id=adminId]").keyup(function(){
+				var value = $(this).val();
+				var length = 20;
+				
+				if($("#idSave").is(":checked")){
+					setCookie("key", $("input[id=adminId]").val(), 7);
+				}
+				
+				if(checkSpecial(value) && value != null && value != ""){
+					alert("특수문자는 입력하실 수 없습니다.");
+					$(this).val("");
+					return false;
+				}else if(checkSpace(value)){
+					alert("공백을 입력하실 수 없습니다.");
+					$(this).val("");
+					return false;
+				}else if(value.length > length){
+					alert("아이디는 " + length + "글자 이내여야 합니다.");
+					$(this).val(value.substring(0, parseInt(length)));
+					return false;
+				}
+				else{
+					return true;
+				}
+			});
+			
+			$("input[id=adminPwd]").keyup(function(){
+				var value = $(this).val();
+				
+				if(checkSpace(value)){
+					alert("공백은 입력할 수 없습니다.");
+					$(this).val(value.replace(/(\s*)/g,""));
+					return false;
+				}else{
+					return true;
+				}
+			});
+			
+			$("button[id=loginSubmit]").click(function(){
+				var idVal = $("input[id=adminId]").val();
+				var pwVal = $("input[id=adminPwd]").val();
+				
+				if(idVal == null || idVal == "" || pwVal == null || pwVal == ""){
+					alert("아이디 또는 패스워드를 입력하여 주십시오.");
+					return false;
+				}else{
+					$("#loginForm").prop("action","/LoginPage/LoginSend");
+					$("#loginForm").submit();
+				}
+			});
+		});
+		
+		function checkSpace(str) {
+			if(str.search(/\s/) != -1) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		function checkSpecial(str) {
+			var special_pattern = /[\uAC00-\uD7A3xfe0-9a-zA-Z\\s]/gi;
+			
+			if(special_pattern.test(str) == true){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+		function checkPasswordPattern(str) {
+			var pattern1 = /^(?=.*[a-zA-Z])((?=.*\d)|(?=.*\W)).{6,20}$/;
+			
+			if(!pattern1.test(str)){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+		function setCookie(cookieName, value, exdays){
+			var exdate = new Date();
+			exdate.setDate(exdate.getDate() + exdays);
+			var cookie = escape(value) + ((exdays==null) ? "" : "; expires=" + exdate.toGMTString());
+			document.cookie = cookieName + "=" + cookieValue;
+		}
+		
+		function deleteCookie(cookieName){
+			var expireDate = new Date();
+			
+			expireDate.setDate(expireDate.getDate() - 1);
+			document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+		}
+		
+		function getCookie(cookieName) {
+			cookieName = cookieName + "=";
+			var cookieData = document.cookie;
+			var start = cookieData.indexOf(cookieName);
+			var cookieValue = '';
+			
+			if(start != -1){
+				start += cookieName.length;
+				var end = cookieData.indexOf(';', start);
+				if(end == -1)end = cookieData.length;
+				cookieValue = cookieData.substring(start, end);
+			}
+			
+			return unescape(cookieValue);
+		}
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -110,7 +240,7 @@
 			<div id="contents">
 				<div id="center">
 					<p>로그인이 필요한 서비스입니다. 아이디와 비밀번호를 입력하여 주십시오.</p>
-					<form role="form" method="post" autocomplete="off">
+					<form role="form" method="post" id="loginForm" autocomplete="off">
 						<table id="login">
 							<tbody>
 								<tr>
@@ -120,7 +250,7 @@
 								</tr>
 								<tr>
 									<td id="text">Password</td>
-									<td><input type="password" name="ADMIN_PWD" id="ADMIN_PWD" class="form-control"/></td>
+									<td><input type="password" name="ADMIN_PWD" id="adminPwd" class="form-control"/></td>
 								</tr>
 								<tr>
 									<td></td>

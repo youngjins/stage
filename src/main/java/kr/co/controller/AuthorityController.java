@@ -2,6 +2,7 @@ package kr.co.controller;
 
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class AuthorityController {
 	
 	// 게시판 목록 조회
 	@RequestMapping(value = "/AuthorityManage/AuthorityList", method = RequestMethod.GET)
-	public String list(Model model, SearchCriteria scri) throws Exception{
+	public String list(Model model, HttpSession session, SearchCriteria scri) throws Exception{
 		logger.info("list");
 		logger.info("menuList");
 		

@@ -13,6 +13,7 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script type="text/javascript" src="<c:url value="/resources/js/sockjs-0.3.4.js"/>"></script> 
 </head>
+<!-- http://blog.daum.net/wonju114/69  채팅 참고-->
 <script type="text/javascript">
     $(document).ready(function() {
         $("#sendBtn").click(function() {
